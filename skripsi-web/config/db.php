@@ -1,11 +1,14 @@
 <?php
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db = "skripsi_db";
+$host = 'localhost';
+$user = 'root';
+$pass = '';
+$dbname = 'skripsi_db';
 
-$conn = mysqli_connect($host, $user, $pass, $db);
+// Buat koneksi
+$conn = mysqli_connect($host, $user, $pass, $dbname);
+
+// Cek koneksi
 if (!$conn) {
-    die("Koneksi gagal: " . mysqli_connect_error());
+    die("Koneksi ke database gagal: " . mysqli_connect_error());
 }
 ?>
