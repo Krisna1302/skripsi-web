@@ -1,9 +1,3 @@
-</div> <!-- end of main -->
-
-<footer class="text-center py-3 mt-5" style="background-color:#15161d; color:#aaa; font-size:14px;">
-  &copy; <?= date('Y') ?> Sistem Pengajuan Skripsi - Universitas Kamu
+<footer class="mt-auto bg-dark text-center text-white py-3 shadow-sm">
+  <small>© <?= date('Y') ?> Sistem Pengajuan Skripsi | Universitas Contoh</small>
 </footer>
-
-<script src="../assets/JS/bootstrap.bundle.min.js"></script>
-</body>
-</html>

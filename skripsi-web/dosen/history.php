@@ -8,31 +8,29 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'dosen') {
 include '../config/db.php';
 $username = $_SESSION['username'];
 
-// Ambil data dosen
 $dosen = mysqli_query($conn, "SELECT * FROM dosen WHERE username = '$username'");
 $data_dosen = mysqli_fetch_assoc($dosen);
-
-// Path foto
-$foto_path = "../assets/img/dosen/" . ($data_dosen['foto'] ?? 'default.png');
-if (!file_exists($foto_path)) {
-    $foto_path = "../assets/img/dosen/default.png";
-}
-
-// Hitung notifikasi pengajuan menunggu (hanya dari prodi yang sesuai)
 $kaprodi = $data_dosen['kaprodi'];
-$notif_query = mysqli_query($conn, "SELECT COUNT(*) as total FROM pengajuan 
-    INNER JOIN mahasiswa ON pengajuan.nim = mahasiswa.nim 
-    WHERE pengajuan.status = 'menunggu' 
-    AND mahasiswa.prodi = '$kaprodi'");
 
-$notif_data = mysqli_fetch_assoc($notif_query);
+// Ambil data pengajuan dengan status selain "Menunggu"
+$riwayat = mysqli_query($conn, "SELECT * FROM pengajuan WHERE pembimbing IN (
+    SELECT nama FROM dosen WHERE kaprodi = '$kaprodi'
+) AND status != 'Menunggu' ORDER BY tanggal DESC");
+
+// Hitung notifikasi pengajuan menunggu
+$notif = mysqli_query($conn, "SELECT COUNT(*) AS total FROM pengajuan 
+                              WHERE pembimbing IN (
+                                SELECT nama FROM dosen WHERE kaprodi = '$kaprodi'
+                              ) AND status = 'Menunggu'");
+$notif_data = mysqli_fetch_assoc($notif);
 $jumlah_menunggu = $notif_data['total'];
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard Dosen</title>
+  <title>Riwayat Pengajuan Skripsi</title>
   <link rel="stylesheet" href="../assets/CSS/bootstrap.min.css">
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"/>
   <style>
@@ -41,7 +39,6 @@ $jumlah_menunggu = $notif_data['total'];
       color: #f1f1f1 !important;
       font-family: 'Segoe UI', sans-serif;
     }
-
     .sidebar {
       width: 220px;
       position: fixed;
@@ -51,13 +48,11 @@ $jumlah_menunggu = $notif_data['total'];
       background-color: #15161d;
       padding-top: 20px;
     }
-
     .sidebar h5 {
       text-align: center;
       color: #ccc !important;
       margin-bottom: 15px;
     }
-
     .sidebar a {
       display: block;
       color: #ccc !important;
@@ -65,116 +60,79 @@ $jumlah_menunggu = $notif_data['total'];
       text-decoration: none;
       transition: background 0.2s ease;
     }
-
     .sidebar a:hover,
     .sidebar .active {
       background-color: #343a40;
       color: #fff !important;
     }
-
     .dropdown-sub {
       background-color: #1c1d26;
     }
-
     .dropdown-sub a {
       padding-left: 40px;
       font-size: 0.95rem;
     }
-
     .slide-menu {
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.4s ease;
     }
-
     .slide-menu.open {
       max-height: 200px;
     }
-
     #dropdownToggle {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-
     #arrowIcon {
       font-size: 1.5rem;
       transition: transform 0.3s ease;
       margin-left: 10px;
     }
-
     .arrow.rotate {
       transform: rotate(180deg);
     }
-
     .main {
       margin-left: 220px;
       padding: 40px 20px;
       min-height: 100vh;
     }
-
-    .card {
+    h2 {
+      color: #f1f1f1 !important;
+      margin-bottom: 30px;
+    }
+    .table {
       background-color: #2a2b3d;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-      animation: fadeIn 0.8s ease-in-out;
       color: #f1f1f1 !important;
+      border-radius: 8px;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .table th, .table td {
+      background-color: #2a2b3d !important;
+      color: #f1f1f1 !important;
+      border-color: #444;
+      padding: 12px;
+      vertical-align: middle;
     }
-
-    .label {
-      font-weight: 600;
-      color: #aaa !important;
+    .table thead {
+      background-color: #1f1f2e;
     }
-
-    .value {
+    .status-badge {
+      font-weight: bold;
+    }
+    .status-diterima {
+      color: #81f781 !important;
+    }
+    .status-ditolak {
+      color: #f18b8b !important;
+    }
+    .empty-message {
+      text-align: center;
+      padding: 40px;
       font-size: 1.1rem;
-      color: #f1f1f1 !important;
-    }
-
-    .profile-section {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .profile-section img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 3px solid #444;
-    }
-
-    .profile-section .info h2 {
-      margin-bottom: 10px;
-      font-size: 1.8rem;
-      color: #f1f1f1 !important;
-    }
-
-    .profile-section .info p {
-      margin: 4px 0;
-    }
-
-    .badge {
-      font-size: 0.8rem;
-    }
-
-    @media (max-width: 576px) {
-      .profile-section {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .profile-section img {
-        margin-bottom: 10px;
-      }
+      color: #aaa;
+      background-color: #2a2b3d;
+      border-radius: 8px;
     }
   </style>
 </head>
@@ -184,8 +142,8 @@ $jumlah_menunggu = $notif_data['total'];
 <div class="sidebar">
   <h5>Dosen</h5>
   <hr class="bg-secondary mx-3">
-  <a href="dashboard.php" class="active">Dashboard</a>
-
+  
+  <a href="dashboard.php">Dashboard</a>
   <a href="javascript:void(0)" onclick="toggleDropdown()" id="dropdownToggle">
     Data Pengajuan
     <?php if ($jumlah_menunggu > 0): ?>
@@ -193,47 +151,71 @@ $jumlah_menunggu = $notif_data['total'];
     <?php endif; ?>
     <span class="arrow" id="arrowIcon">▾</span>
   </a>
-  <div id="dropdownMenu" class="dropdown-sub slide-menu">
+  <div id="dropdownMenu" class="dropdown-sub slide-menu open">
     <a href="pengajuan.php">Pengajuan Skripsi</a>
-    <a href="history.php">Riwayat Pengajuan</a>
+    <a href="history.php" class="active">Riwayat Pengajuan</a>
   </div>
-
   <a href="../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
 </div>
 
 <!-- Main Content -->
 <div class="main">
-  <div class="card" data-aos="fade-down">
-    <div class="profile-section">
-      <img src="<?= $foto_path ?>" alt="Foto Profil Dosen">
-      <div class="info">
-        <h2>Selamat datang, <?= htmlspecialchars($data_dosen['nama']) ?>!</h2>
-        <p class="label">NIDN:</p>
-        <p class="value"><?= htmlspecialchars($data_dosen['nidn']) ?></p>
-        <p class="label">Dosen Penasihat:</p>
-        <p class="value"><?= htmlspecialchars($data_dosen['kaprodi']) ?></p>
-      </div>
-    </div>
+  <h2 data-aos="fade-down">Riwayat Pengajuan Judul Skripsi</h2>
+
+  <?php if (mysqli_num_rows($riwayat) > 0): ?>
+  <div class="table-responsive" data-aos="fade-up">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>NIM</th>
+          <th>Judul</th>
+          <th>Deskripsi</th>
+          <th>Bidang</th>
+          <th>Pembimbing</th>
+          <th>Status</th>
+          <th>Proposal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php while ($row = mysqli_fetch_assoc($riwayat)): ?>
+        <tr>
+          <td><?= htmlspecialchars($row['nama']) ?></td>
+          <td><?= htmlspecialchars($row['nim']) ?></td>
+          <td><?= htmlspecialchars($row['judul']) ?></td>
+          <td><?= nl2br(htmlspecialchars($row['deskripsi'])) ?></td>
+          <td><?= htmlspecialchars($row['bidang']) ?></td>
+          <td><?= htmlspecialchars($row['pembimbing']) ?></td>
+          <td>
+            <span class="status-badge 
+              <?= $row['status'] == 'Diterima' ? 'status-diterima' : 'status-ditolak' ?>">
+              <?= htmlspecialchars($row['status']) ?>
+            </span>
+          </td>
+          <td>
+            <a href="../uploads/<?= htmlspecialchars($row['file']) ?>" target="_blank" class="btn btn-sm btn-secondary">Lihat</a>
+          </td>
+        </tr>
+        <?php endwhile; ?>
+      </tbody>
+    </table>
   </div>
+  <?php else: ?>
+    <div class="empty-message" data-aos="fade-up">
+      Belum ada riwayat pengajuan yang diproses.
+    </div>
+  <?php endif; ?>
 </div>
 
-<?php include '../partials/footer.php'; ?>
 <script src="../assets/JS/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <script>
   AOS.init();
-
   function toggleDropdown() {
     const menu = document.getElementById("dropdownMenu");
     const arrow = document.getElementById("arrowIcon");
-
-    if (menu.classList.contains("open")) {
-      menu.classList.remove("open");
-      arrow.classList.remove("rotate");
-    } else {
-      menu.classList.add("open");
-      arrow.classList.add("rotate");
-    }
+    menu.classList.toggle("open");
+    arrow.classList.toggle("rotate");
   }
 </script>
 </body>

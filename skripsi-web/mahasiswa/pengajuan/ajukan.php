@@ -10,6 +10,10 @@ include '../../config/db.php';
 $username = $_SESSION['username'];
 $mhs = mysqli_query($conn, "SELECT * FROM mahasiswa WHERE username = '$username'");
 $data_mhs = mysqli_fetch_assoc($mhs);
+$prodi = $data_mhs['prodi'];
+
+// Ambil dosen sesuai prodi
+$dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$prodi'");
 ?>
 <!DOCTYPE html>
 <html>
@@ -150,8 +154,8 @@ $data_mhs = mysqli_fetch_assoc($mhs);
           <textarea name="judul" class="form-control" placeholder="Masukkan judul skripsi Anda" required></textarea>
         </div>
         <div class="mb-3">
-          <label class="form-label">Deskripsi Singkat</label>
-          <textarea name="deskripsi" class="form-control" placeholder="Tulis ringkasan isi skripsi Anda..." required></textarea>
+          <label class="form-label">Deskripsi</label>
+          <textarea name="deskripsi" class="form-control" placeholder="Tulis deskripsi singkat mengenai skripsi Anda" rows="3" required></textarea>
         </div>
         <div class="mb-3">
           <label class="form-label">Bidang</label>
@@ -159,7 +163,12 @@ $data_mhs = mysqli_fetch_assoc($mhs);
         </div>
         <div class="mb-3">
           <label class="form-label">Dosen Pembimbing</label>
-          <input type="text" name="pembimbing" class="form-control" placeholder="Masukkan nama dosen pembimbing" required>
+          <select name="pembimbing" class="form-control" required>
+            <option value="" disabled selected>Pilih dosen</option>
+            <?php while ($d = mysqli_fetch_assoc($dosen_query)) : ?>
+              <option value="<?= htmlspecialchars($d['nama']) ?>"><?= htmlspecialchars($d['nama']) ?></option>
+            <?php endwhile; ?>
+          </select>
         </div>
         <div class="mb-3">
           <label class="form-label">Upload Proposal (PDF)</label>

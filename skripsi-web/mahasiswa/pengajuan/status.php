@@ -192,7 +192,7 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
           <?php while ($row = mysqli_fetch_assoc($pengajuan)): ?>
             <tr>
               <td><?= htmlspecialchars($row['judul']) ?></td>
-              <td><?= htmlspecialchars($row['deskripsi']) ?></td>
+              <td><?= $row['deskripsi'] ? htmlspecialchars($row['deskripsi']) : '<em style="color:#ccc;">Tidak ada deskripsi</em>' ?></td>
               <td>
                 <?php
                   $status = strtolower($row['status']);

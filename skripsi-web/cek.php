@@ -2,14 +2,14 @@
 session_start();
 include 'config/db.php';
 
-$username = $_POST['username'];
+// Ambil input
+$username = mysqli_real_escape_string($conn, $_POST['username']);
 $password = $_POST['password'];
 
-$query_admin = mysqli_query($conn, "SELECT * FROM admin WHERE username = '$username'");
-$query_dosen = mysqli_query($conn, "SELECT * FROM dosen WHERE username = '$username'");
-$query_mahasiswa = mysqli_query($conn, "SELECT * FROM mahasiswa WHERE username = '$username'");
-
-if ($data = mysqli_fetch_assoc($query_admin)) {
+// Cek di tabel admin
+$query = mysqli_query($conn, "SELECT * FROM admin WHERE username = '$username'");
+if (mysqli_num_rows($query) > 0) {
+    $data = mysqli_fetch_assoc($query);
     if (password_verify($password, $data['password'])) {
         $_SESSION['username'] = $data['username'];
         $_SESSION['role'] = 'admin';
@@ -17,15 +17,11 @@ if ($data = mysqli_fetch_assoc($query_admin)) {
         exit;
     }
 }
-if ($data = mysqli_fetch_assoc($query_dosen)) {
-    if (password_verify($password, $data['password'])) {
-        $_SESSION['username'] = $data['username'];
-        $_SESSION['role'] = 'dosen';
-        header("Location: dosen/dashboard.php");
-        exit;
-    }
-}
-if ($data = mysqli_fetch_assoc($query_mahasiswa)) {
+
+// Cek di tabel mahasiswa
+$query = mysqli_query($conn, "SELECT * FROM mahasiswa WHERE username = '$username'");
+if (mysqli_num_rows($query) > 0) {
+    $data = mysqli_fetch_assoc($query);
     if (password_verify($password, $data['password'])) {
         $_SESSION['username'] = $data['username'];
         $_SESSION['role'] = 'mahasiswa';
@@ -34,6 +30,21 @@ if ($data = mysqli_fetch_assoc($query_mahasiswa)) {
     }
 }
 
-// Jika gagal
-echo "<script>alert('Login gagal! Username atau password salah');window.location='index.php';</script>";
+// Cek di tabel dosen
+$query = mysqli_query($conn, "SELECT * FROM dosen WHERE username = '$username'");
+if (mysqli_num_rows($query) > 0) {
+    $data = mysqli_fetch_assoc($query);
+    if (password_verify($password, $data['password'])) {
+        $_SESSION['username'] = $data['username'];
+        $_SESSION['role'] = 'dosen';
+        header("Location: dosen/dashboard.php");
+        exit;
+    }
+}
+
+// Jika login gagal
+echo "<script>
+    alert('Login gagal! Username atau password salah.');
+    window.location.href = 'index.php';
+</script>";
 ?>

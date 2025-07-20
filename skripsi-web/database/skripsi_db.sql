@@ -1,63 +1,65 @@
--- Buat Database
-DROP DATABASE IF EXISTS skripsi_db;
-CREATE DATABASE skripsi_db;
+-- Buat database (jika belum)
+CREATE DATABASE IF NOT EXISTS skripsi_db;
 USE skripsi_db;
 
--- Tabel Admin
-DROP TABLE IF EXISTS admin;
-CREATE TABLE admin (
+-- Tabel mahasiswa
+CREATE TABLE IF NOT EXISTS mahasiswa (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL
-);
-
--- Tabel Mahasiswa
-DROP TABLE IF EXISTS mahasiswa;
-CREATE TABLE mahasiswa (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
+    username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     nama VARCHAR(100) NOT NULL,
     nim VARCHAR(20) NOT NULL UNIQUE,
     prodi VARCHAR(100) NOT NULL,
-    foto VARCHAR(255)
+    foto VARCHAR(100) DEFAULT 'default.png'
 );
 
--- Tabel Dosen
-DROP TABLE IF EXISTS dosen;
-CREATE TABLE dosen (
+-- Tabel dosen
+CREATE TABLE IF NOT EXISTS dosen (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL
-);
-
--- Tabel Pengajuan
-DROP TABLE IF EXISTS pengajuan;
-CREATE TABLE pengajuan (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
     nama VARCHAR(100) NOT NULL,
+    nidn VARCHAR(20) NOT NULL UNIQUE,
+    kaprodi VARCHAR(100) NOT NULL,
+    foto VARCHAR(100) DEFAULT 'default.png'
+);
+
+-- Tabel pengajuan
+CREATE TABLE IF NOT EXISTS pengajuan (
+    id INT AUTO_INCREMENT PRIMARY KEY,
     nim VARCHAR(20) NOT NULL,
+    nama VARCHAR(100) NOT NULL,
     judul TEXT NOT NULL,
-    deskripsi TEXT NOT NULL,
+    deskripsi TEXT,
     bidang VARCHAR(100) NOT NULL,
     pembimbing VARCHAR(100) NOT NULL,
-    file VARCHAR(255) NOT NULL,
-    status VARCHAR(50) DEFAULT 'Menunggu',
+    file VARCHAR(100) NOT NULL,
+    status ENUM('Menunggu', 'Diterima', 'Ditolak') DEFAULT 'Menunggu',
     tanggal TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Isi Data Admin
-INSERT INTO admin (username, password) VALUES
-('admin', '$2y$12$tvXO9kK/uEedV5oo05COGO8yfsrOWoSrREmYZqohwR3rFaJQM/rue'); 
--- Password: admin123
+-- Data Mahasiswa
+INSERT INTO mahasiswa (username, password, nama, nim, prodi)
+VALUES 
+('putri', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Putri Wandayani', '06024006', 'Teknik Informatika'),
+('peris', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Peris Trisna', '06024011', 'Sistem Informasi');
 
--- Isi Data Dosen
-INSERT INTO dosen (username, password) VALUES
-('dsn1', '$2y$12$tvXO9kK/uEedV5oo05COGO8yfsrOWoSrREmYZqohwR3rFaJQM/rue'); 
--- Password: admin123
+-- Data Dosen
+INSERT INTO dosen (username, password, nama, nidn, kaprodi)
+VALUES 
+('yohanes', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Yohanes Eka Wibawa', '20232023', 'Teknik Informatika'),
+('sri', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Sri Wahyu', '20232024', 'Sistem Informasi');
 
--- Isi Data Mahasiswa (2 akun)
-INSERT INTO mahasiswa (username, password, nama, nim, prodi, foto) VALUES
-('mhs1', '$2y$12$tvXO9kK/uEedV5oo05COGO8yfsrOWoSrREmYZqohwR3rFaJQM/rue', 'Andi Pratama', '12345678', 'Teknik Informatika', NULL),
-('mhs2', '$2y$12$tvXO9kK/uEedV5oo05COGO8yfsrOWoSrREmYZqohwR3rFaJQM/rue', 'Rina Kartika', '87654321', 'Sistem Informasi', NULL);
--- Password kedua akun mahasiswa: admin123
+CREATE TABLE IF NOT EXISTS admin (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    nama VARCHAR(100) NOT NULL
+);
+
+-- Tambah akun admin (username: admin, password: admin123)
+INSERT INTO admin (username, password, nama) VALUES (
+    'admin',
+    '$2y$10$T0qVKvR3g4MdMEybY9xqN.zWh1emMHmHuk20V1XLWNSZFosq.m4Ea', -- hash dari "admin123"
+    'Admin Utama'
+);

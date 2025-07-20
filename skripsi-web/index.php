@@ -14,39 +14,24 @@ if (isset($_SESSION['username'])) {
   <link rel="stylesheet" href="assets/CSS/bootstrap.min.css">
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"/>
   <style>
-    html, body {
-      height: 100%;
+    body {
+      background: url('assets/img/bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: #fff;
       margin: 0;
     }
 
-    body {
-      position: relative;
-      font-family: 'Segoe UI', sans-serif;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      background: url('assets/img/bg.jpg') no-repeat center center fixed;
-      background-size: cover;
-    }
-
-    /* Overlay Gelap */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.7); /* Semakin besar, semakin gelap */
-      z-index: 0;
-    }
-
-    .main-wrapper {
+    .login-container {
       flex: 1;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 30px 15px;
-      z-index: 1; /* Supaya tampil di atas overlay */
+      background-color: rgba(0, 0, 0, 0.6);
     }
 
     .login-box {
@@ -57,7 +42,6 @@ if (isset($_SESSION['username'])) {
       max-width: 400px;
       box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
       animation: fadeIn 0.5s ease;
-      z-index: 1;
     }
 
     .login-box img.logo {
@@ -100,18 +84,17 @@ if (isset($_SESSION['username'])) {
       background-color: #3b83d6;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     footer {
       background-color: #15161d;
       color: #888;
       padding: 15px 0;
       text-align: center;
       font-size: 14px;
-      z-index: 1;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     @media (max-width: 480px) {
@@ -130,19 +113,19 @@ if (isset($_SESSION['username'])) {
     }
   </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
-<div class="main-wrapper" data-aos="fade-up">
+<div class="login-container" data-aos="fade-up">
   <div class="login-box">
     <img src="assets/img/logo.png" alt="Logo" class="logo">
     <h2>Login</h2>
     <form method="POST" action="cek.php">
       <div class="mb-3">
-        <label class="form-label">Username</label>
+        <label for="username" class="form-label">Username</label>
         <input type="text" class="form-control" name="username" placeholder="Masukkan username" required>
       </div>
       <div class="mb-3">
-        <label class="form-label">Password</label>
+        <label for="password" class="form-label">Password</label>
         <input type="password" class="form-control" name="password" placeholder="Masukkan password" required>
       </div>
       <button type="submit" class="btn btn-login">Login</button>
