@@ -1,19 +1,9 @@
-<footer class="footer-dark text-center mt-auto py-3">
-  <div class="container">
-    <small>&copy; <?= date('Y') ?> Sistem Pengajuan Skripsi • Universitas Tanri Abeng</small>
-  </div>
+</div> <!-- end of main -->
+
+<footer class="text-center py-3 mt-5" style="background-color:#15161d; color:#aaa; font-size:14px;">
+  &copy; <?= date('Y') ?> Sistem Pengajuan Skripsi - Universitas Kamu
 </footer>
 
-<style>
-  .footer-dark {
-    background-color: #15161d;
-    color: #aaa;
-    position: relative;
-    width: 100%;
-  }
-
-  .footer-dark small {
-    font-size: 13px;
-    letter-spacing: 0.3px;
-  }
-</style>
+<script src="../assets/JS/bootstrap.bundle.min.js"></script>
+</body>
+</html>

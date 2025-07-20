@@ -4,6 +4,13 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'mahasiswa') {
     header("Location: ../index.php");
     exit;
 }
+
+include '../config/db.php';
+$username = $_SESSION['username'];
+
+// Ambil data mahasiswa
+$query = mysqli_query($conn, "SELECT * FROM mahasiswa WHERE username = '$username'");
+$data = mysqli_fetch_assoc($query);
 ?>
 <!DOCTYPE html>
 <html>
@@ -13,31 +20,30 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'mahasiswa') {
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css"/>
   <style>
     body {
-      display: flex;
-      min-height: 100vh;
-      margin: 0;
       background-color: #1e1e2f;
       color: #f1f1f1;
       font-family: 'Segoe UI', sans-serif;
-      overflow-x: hidden;
     }
 
     .sidebar {
-      width: 240px;
+      width: 220px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
       background-color: #15161d;
       padding-top: 20px;
-      flex-shrink: 0;
     }
 
     .sidebar h5 {
       text-align: center;
-      margin-bottom: 20px;
-      color: #ffffff;
+      color: #ccc;
+      margin-bottom: 15px;
     }
 
     .sidebar a {
-      color: #bbb;
       display: block;
+      color: #ccc;
       padding: 12px 20px;
       text-decoration: none;
       transition: background 0.2s ease;
@@ -45,100 +51,139 @@ if (!isset($_SESSION['username']) || $_SESSION['role'] != 'mahasiswa') {
 
     .sidebar a:hover,
     .sidebar .active {
-      background-color: #2a2b3d;
+      background-color: #343a40;
       color: #fff;
     }
 
-    .dropdown-menu-custom {
-      padding-left: 20px;
-      display: none;
-    }
-
-    .dropdown-menu-custom a {
-      font-size: 0.95rem;
+    .collapse a {
       padding-left: 35px;
     }
 
-    .content {
-      flex-grow: 1;
-      padding: 40px;
+    .sidebar a.dropdown-toggle::after {
+      content: '';
+    }
+
+    .main {
+      margin-left: 220px;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .card-profile {
+      background-color: #2a2b3d;
+      border-radius: 12px;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 30px;
+      border: 3px solid #555;
+    }
+
+    .profile-info h4 {
+      margin-bottom: 5px;
     }
 
     .card {
       background-color: #2a2b3d;
-      border: none;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      color: #f1f1f1;
-      transition: transform 0.3s;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
 
-    .card:hover {
-      transform: translateY(-4px);
+    .list-group-item {
+      background-color: transparent;
+      border: none;
+      font-size: 15px;
     }
 
-    .section-title {
-      border-bottom: 1px solid #444;
-      padding-bottom: 8px;
-      margin-bottom: 25px;
+    .text-success {
+      color: #81f781 !important;
+    }
+
+    .text-danger {
+      color: #f18b8b !important;
+    }
+
+    .text-warning {
+      color: #ffc107 !important;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
-<body class="d-flex flex-column" style="min-height: 100vh;">
-  <div class="d-flex flex-grow-1">
+<body>
+
 <!-- Sidebar -->
 <div class="sidebar">
   <h5>Mahasiswa</h5>
+  <hr class="bg-secondary mx-3">
   <a href="dashboard.php" class="active">Dashboard</a>
-  
-  <a href="#" onclick="toggleDropdown()">Pengajuan ▼</a>
-  <div id="pengajuanSubmenu" class="dropdown-menu-custom">
-    <a href="pengajuan/ajukan.php">Ajukan Judul</a>
-    <a href="pengajuan/status.php">Lihat Status</a>
+  <a class="dropdown-toggle" data-bs-toggle="collapse" href="#menuPengajuan" role="button" aria-expanded="false" aria-controls="menuPengajuan">
+    Pengajuan
+  </a>
+  <div class="collapse ms-1" id="menuPengajuan">
+    <a href="pengajuan/ajukan.php">Ajukan</a>
+    <a href="pengajuan/status.php">Status</a>
   </div>
-
   <a href="../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
 </div>
 
 <!-- Main Content -->
-<div class="content">
-  <h2 class="section-title" data-aos="fade-right">Selamat datang, <?php echo $_SESSION['username']; ?>!</h2>
+<div class="main">
+  <h2 class="mb-4" data-aos="fade-down">Selamat Datang, <?= htmlspecialchars($data['nama']) ?></h2>
 
-  <div class="row" data-aos="fade-up">
-    <div class="col-md-12">
-      <div class="card p-4 mb-4">
-        <h4>Status Pengajuan Skripsi Terbaru</h4>
-        <?php
-        include "../config/db.php";
-        $username = $_SESSION['username'];
-        $query = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim='$username' ORDER BY tanggal DESC LIMIT 1");
-        if (mysqli_num_rows($query) > 0) {
-          $data = mysqli_fetch_assoc($query);
-          echo "<p><strong>Judul:</strong> {$data['judul']}</p>";
-          echo "<p><strong>Status:</strong> {$data['status']}</p>";
-          echo "<p><strong>Tanggal:</strong> {$data['tanggal']}</p>";
-          echo "<a href='pengajuan/status.php' class='btn btn-outline-light btn-sm'>Lihat Detail</a>";
-        } else {
-          echo "<p>Anda belum melakukan pengajuan skripsi.</p>";
-          echo "<a href='pengajuan/ajukan.php' class='btn btn-primary btn-sm'>Ajukan Skripsi Sekarang</a>";
-        }
-        ?>
-      </div>
+  <div class="card-profile mb-5" data-aos="fade-up">
+    <img src="<?= $data['foto'] ? '../uploads/' . $data['foto'] : '../assets/img/default-user.png' ?>" alt="Foto Profil" class="profile-img">
+    <div class="profile-info">
+      <h4><?= htmlspecialchars($data['nama']) ?></h4>
+      <p><strong>NIM:</strong> <?= htmlspecialchars($data['nim']) ?></p>
+      <p><strong>Program Studi:</strong> <?= htmlspecialchars($data['prodi']) ?></p>
+      <p><strong>Username:</strong> <?= htmlspecialchars($data['username']) ?></p>
     </div>
   </div>
+
+  <h4 class="mb-3" data-aos="fade-right">Riwayat Pengajuan Skripsi</h4>
+  <div class="card" data-aos="fade-up">
+    <ul class="list-group list-group-flush">
+      <?php
+        $riwayat = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '{$data['nim']}' ORDER BY tanggal DESC");
+        if (mysqli_num_rows($riwayat) == 0) {
+          echo '<li class="list-group-item text-warning">Belum ada pengajuan skripsi.</li>';
+        } else {
+          while ($r = mysqli_fetch_assoc($riwayat)) {
+            $tgl = date('d M Y, H:i', strtotime($r['tanggal']));
+            $judul = htmlspecialchars($r['judul']);
+            $status = strtolower($r['status']);
+
+            if ($status == 'menunggu') {
+              echo "<li class='list-group-item text-light'><strong>[$tgl]</strong> Anda mengajukan judul: <em>\"$judul\"</em></li>";
+            } elseif ($status == 'diterima') {
+              echo "<li class='list-group-item text-success'><strong>[$tgl]</strong> Skripsi <em>\"$judul\"</em> telah <strong>DITERIMA</strong></li>";
+            } elseif ($status == 'ditolak') {
+              echo "<li class='list-group-item text-danger'><strong>[$tgl]</strong> Skripsi <em>\"$judul\"</em> telah <strong>DITOLAK</strong></li>";
+            }
+          }
+        }
+      ?>
+    </ul>
+  </div>
 </div>
-</div>
+
+<?php include '../partials/footer.php'; ?>
 <script src="../assets/JS/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-  AOS.init();
-
-  function toggleDropdown() {
-    const menu = document.getElementById("pengajuanSubmenu");
-    menu.style.display = (menu.style.display === "block") ? "none" : "block";
-  }
-</script>
-<?php include '../partials/footer.php'; ?>
-
+<script>AOS.init();</script>
 </body>
 </html>
