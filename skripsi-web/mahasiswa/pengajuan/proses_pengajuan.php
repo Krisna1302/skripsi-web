@@ -20,7 +20,7 @@ $filename = $_FILES['file']['name'];
 $tmpname = $_FILES['file']['tmp_name'];
 $filesize = $_FILES['file']['size'];
 $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-$allowed = ['pdf'];
+$allowed = ['pdf', 'txt'];
 
 if (!in_array($ext, $allowed)) {
     echo "<script>alert('File harus berupa PDF.'); window.history.back();</script>";

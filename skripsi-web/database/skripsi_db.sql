@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS dosen (
     foto VARCHAR(100) DEFAULT 'default.png'
 );
 
--- Tabel pengajuan
+-- Tabel pengajuan  
 CREATE TABLE IF NOT EXISTS pengajuan (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nim VARCHAR(20) NOT NULL,
@@ -41,8 +41,8 @@ CREATE TABLE IF NOT EXISTS pengajuan (
 -- Data Mahasiswa
 INSERT INTO mahasiswa (username, password, nama, nim, prodi)
 VALUES 
-('putri', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Putri Wandayani', '06024006', 'Teknik Informatika'),
-('peris', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Peris Trisna', '06024011', 'Sistem Informasi');
+('putri', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Putri Wandayani', '06024006', 'Sistem Informasi'),
+('peris', '$2y$12$z.2.f7CSjPd0hGxRbd8IvOA9BJlMyEIe1SZuyAgolHcVIpmbjX7z2', 'Peris Trisna', '06024011', 'Teknik Informatika');
 
 -- Data Dosen
 INSERT INTO dosen (username, password, nama, nidn, kaprodi)

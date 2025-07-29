@@ -172,7 +172,7 @@ $dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$pro
         </div>
         <div class="mb-3">
           <label class="form-label">Upload Proposal (PDF)</label>
-          <input type="file" name="file" class="form-control" accept=".pdf" required>
+          <input type="file" name="file" class="form-control" accept=".pdf" accept=".txt" required>
         </div>
         <button type="submit" class="btn btn-submit w-100">Ajukan Skripsi</button>
       </form>

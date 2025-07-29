@@ -256,13 +256,17 @@ ORDER BY tanggal DESC");
         <a href="../uploads/<?= htmlspecialchars($row['file']) ?>" target="_blank" class="btn btn-sm btn-secondary">Lihat</a>
       </td>
       <td>
-        <form method="POST" action="proses_status.php" class="d-flex flex-column gap-2">
-          <input type="hidden" name="id_pengajuan" value="<?= $row['id'] ?>">
-          <div class="d-flex flex-column flex-md-row gap-2">
-            <button type="submit" name="status" value="Diterima" class="btn btn-acc btn-sm">Setujui</button>
-            <button type="submit" name="status" value="Ditolak" class="btn btn-reject btn-sm">Tolak</button>
-          </div>
-        </form>
+       <form method="POST" action="proses_status.php" class="d-flex flex-column gap-2">
+  <input type="hidden" name="id_pengajuan" value="<?= $row['id'] ?>">
+  
+  <textarea name="komentar" rows="2" class="form-control mb-2" placeholder="Tulis komentar (opsional)"></textarea>
+  
+  <div class="d-flex flex-column flex-md-row gap-2">
+    <button type="submit" name="status" value="Diterima" class="btn btn-acc btn-sm">Setujui</button>
+    <button type="submit" name="status" value="Ditolak" class="btn btn-reject btn-sm">Tolak</button>
+  </div>
+</form>
+
       </td>
     </tr>
   <?php endwhile; ?>
