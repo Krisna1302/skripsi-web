@@ -50,13 +50,13 @@ $random_quote = $quotes[array_rand($quotes)];
 
     .sidebar h5 {
       text-align: center;
-      color: #ccc;
+      color: #ccc !important;
       margin-bottom: 15px;
     }
 
     .sidebar a {
       display: block;
-      color: #ccc;
+      color: #ccc !important;
       padding: 12px 20px;
       text-decoration: none;
       transition: background 0.2s ease;
@@ -65,15 +65,42 @@ $random_quote = $quotes[array_rand($quotes)];
     .sidebar a:hover,
     .sidebar .active {
       background-color: #343a40;
-      color: #fff;
+      color: #fff !important;
     }
 
-    .collapse a {
-      padding-left: 35px;
+    .dropdown-sub {
+      background-color: #1c1d26;
     }
 
-    .sidebar a.dropdown-toggle::after {
-      content: '';
+    .dropdown-sub a {
+      padding-left: 40px;
+      font-size: 0.95rem;
+    }
+
+    .slide-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .slide-menu.open {
+      max-height: 200px;
+    }
+
+    #dropdownToggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #arrowIcon {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+      margin-left: 10px;
+    }
+
+    .arrow.rotate {
+      transform: rotate(180deg);
     }
 
     .main {
@@ -153,13 +180,15 @@ $random_quote = $quotes[array_rand($quotes)];
   <h5>Mahasiswa</h5>
   <hr class="bg-secondary mx-3">
   <a href="dashboard.php" class="active">Dashboard</a>
-  <a class="dropdown-toggle" data-bs-toggle="collapse" href="#menuPengajuan" role="button" aria-expanded="true">
+
+  <a href="javascript:void(0)" onclick="toggleDropdown()" id="dropdownToggle">
     Pengajuan
+    <span class="arrow" id="arrowIcon">▾</span>
   </a>
-  <div class="collapse show ms-1" id="menuPengajuan">
+  <div id="dropdownMenu" class="dropdown-sub slide-menu">
     <a href="pengajuan/ajukan.php">Ajukan</a>
     <a href="pengajuan/status.php">Status</a>
-  </div>
+</div>
   <a href="../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
 </div>
 
@@ -205,6 +234,21 @@ $random_quote = $quotes[array_rand($quotes)];
 <?php include '../partials/footer.php'; ?>
 <script src="../JS/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>AOS.init();</script>
+<script>
+  AOS.init();
+
+  function toggleDropdown() {
+    const menu = document.getElementById("dropdownMenu");
+    const arrow = document.getElementById("arrowIcon");
+
+    if (menu.classList.contains("open")) {
+      menu.classList.remove("open");
+      arrow.classList.remove("rotate");
+    } else {
+      menu.classList.add("open");
+      arrow.classList.add("rotate");
+    }
+  }
+</script>
 </body>
 </html>

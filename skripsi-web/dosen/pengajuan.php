@@ -253,7 +253,7 @@ ORDER BY tanggal DESC");
         </span>
       </td>
       <td>
-        <a href="../uploads/<?= htmlspecialchars($row['file']) ?>" target="_blank" class="btn btn-sm btn-secondary">Lihat</a>
+        <a href="lihat_file.php?file=<?= htmlspecialchars($row['file']) ?>" target="_blank" class="btn btn-sm btn-secondary">Lihat</a>
       </td>
       <td>
        <form method="POST" action="proses_status.php" class="d-flex flex-column gap-2">

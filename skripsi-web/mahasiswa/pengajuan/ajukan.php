@@ -12,8 +12,8 @@ $mhs = mysqli_query($conn, "SELECT * FROM mahasiswa WHERE username = '$username'
 $data_mhs = mysqli_fetch_assoc($mhs);
 $prodi = $data_mhs['prodi'];
 
-// Ambil dosen sesuai prodi
-$dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$prodi'");
+// Ambil nama & nidn dosen sesuai prodi
+$dosen_query = mysqli_query($conn, "SELECT nama, nidn FROM dosen WHERE kaprodi = '$prodi'");
 ?>
 <!DOCTYPE html>
 <html>
@@ -40,13 +40,13 @@ $dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$pro
 
     .sidebar h5 {
       text-align: center;
-      color: #ccc;
+      color: #ccc !important;
       margin-bottom: 15px;
     }
 
     .sidebar a {
       display: block;
-      color: #ccc;
+      color: #ccc !important;
       padding: 12px 20px;
       text-decoration: none;
       transition: background 0.2s ease;
@@ -55,15 +55,42 @@ $dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$pro
     .sidebar a:hover,
     .sidebar .active {
       background-color: #343a40;
-      color: #fff;
+      color: #fff !important;
     }
 
-    .collapse a {
-      padding-left: 35px;
+    .dropdown-sub {
+      background-color: #1c1d26;
     }
 
-    .sidebar a.dropdown-toggle::after {
-      content: '';
+    .dropdown-sub a {
+      padding-left: 40px;
+      font-size: 0.95rem;
+    }
+
+    .slide-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .slide-menu.open {
+      max-height: 200px;
+    }
+
+    #dropdownToggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #arrowIcon {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+      margin-left: 10px;
+    }
+
+    .arrow.rotate {
+      transform: rotate(180deg);
     }
 
     .main {
@@ -124,15 +151,17 @@ $dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$pro
 <div class="sidebar">
   <h5>Mahasiswa</h5>
   <hr class="bg-secondary mx-3">
-  <a href="../dashboard.php">Dashboard</a>
-  <a class="dropdown-toggle" data-bs-toggle="collapse" href="#menuPengajuan" role="button" aria-expanded="true" aria-controls="menuPengajuan">
+  <a href="../dashboard.php" >Dashboard</a>
+
+  <a href="javascript:void(0)" onclick="toggleDropdown()" id="dropdownToggle">
     Pengajuan
+    <span class="arrow" id="arrowIcon">▾</span>
   </a>
-  <div class="collapse show ms-1" id="menuPengajuan">
+  <div id="dropdownMenu" class="dropdown-sub slide-menu">
     <a href="ajukan.php" class="active">Ajukan</a>
-    <a href="status.php">Status</a>
-  </div>
-  <a href="../../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
+    <a href="status.php" >Status</a>
+</div>
+  <a href="../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
 </div>
 
 <!-- Main Content -->
@@ -163,16 +192,19 @@ $dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$pro
         </div>
         <div class="mb-3">
           <label class="form-label">Dosen Pembimbing</label>
-          <select name="pembimbing" class="form-control" required>
+          <select name="pembimbing" class="form-control" id="selectDosen" onchange="updateNidn(this)" required>
             <option value="" disabled selected>Pilih dosen</option>
             <?php while ($d = mysqli_fetch_assoc($dosen_query)) : ?>
-              <option value="<?= htmlspecialchars($d['nama']) ?>"><?= htmlspecialchars($d['nama']) ?></option>
+              <option value="<?= htmlspecialchars($d['nama']) ?>" data-nidn="<?= htmlspecialchars($d['nidn']) ?>">
+                <?= htmlspecialchars($d['nama']) ?>
+              </option>
             <?php endwhile; ?>
           </select>
+          <input type="hidden" name="nidn" id="nidnField">
         </div>
         <div class="mb-3">
           <label class="form-label">Upload Proposal (PDF)</label>
-          <input type="file" name="file" class="form-control" accept=".pdf" accept=".txt" required>
+          <input type="file" name="file" class="form-control" accept=".pdf,.txt" required>
         </div>
         <button type="submit" class="btn btn-submit w-100">Ajukan Skripsi</button>
       </form>
@@ -183,6 +215,28 @@ $dosen_query = mysqli_query($conn, "SELECT nama FROM dosen WHERE kaprodi = '$pro
 <?php include '../../partials/footer.php'; ?>
 <script src="../../assets/JS/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>AOS.init();</script>
+<script>
+  AOS.init();
+
+  function toggleDropdown() {
+    const menu = document.getElementById("dropdownMenu");
+    const arrow = document.getElementById("arrowIcon");
+
+    if (menu.classList.contains("open")) {
+      menu.classList.remove("open");
+      arrow.classList.remove("rotate");
+    } else {
+      menu.classList.add("open");
+      arrow.classList.add("rotate");
+    }
+  }
+</script>
+<script>
+  function updateNidn(select) {
+    const selected = select.options[select.selectedIndex];
+    const nidn = selected.getAttribute('data-nidn');
+    document.getElementById('nidnField').value = nidn;
+  }
+</script>
 </body>
 </html>

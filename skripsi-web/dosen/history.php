@@ -193,7 +193,7 @@ $jumlah_menunggu = $notif_data['total'];
             </span>
           </td>
           <td>
-            <a href="../uploads/<?= htmlspecialchars($row['file']) ?>" target="_blank" class="btn btn-sm btn-secondary">Lihat</a>
+            <a href="lihat_file.php?file=<?= htmlspecialchars($row['file']) ?>" target="_blank" class="btn btn-sm btn-secondary">Lihat</a>
           </td>
         </tr>
         <?php endwhile; ?>

@@ -14,6 +14,8 @@ $judul = mysqli_real_escape_string($conn, $_POST['judul']);
 $deskripsi = mysqli_real_escape_string($conn, $_POST['deskripsi']);
 $bidang = mysqli_real_escape_string($conn, $_POST['bidang']);
 $pembimbing = mysqli_real_escape_string($conn, $_POST['pembimbing']);
+$nidn = mysqli_real_escape_string($conn, $_POST['nidn']);
+$komentar = ""; // default kosong saat pengajuan pertama
 
 // Cek dan proses file upload
 $filename = $_FILES['file']['name'];
@@ -23,7 +25,7 @@ $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
 $allowed = ['pdf', 'txt'];
 
 if (!in_array($ext, $allowed)) {
-    echo "<script>alert('File harus berupa PDF.'); window.history.back();</script>";
+    echo "<script>alert('File harus berupa PDF atau TXT.'); window.history.back();</script>";
     exit;
 }
 
@@ -36,8 +38,8 @@ if (!move_uploaded_file($tmpname, $uploadpath)) {
 }
 
 // Simpan ke database
-$query = "INSERT INTO pengajuan (nama, nim, judul, deskripsi, bidang, pembimbing, file)
-          VALUES ('$nama', '$nim', '$judul', '$deskripsi', '$bidang', '$pembimbing', '$newname')";
+$query = "INSERT INTO pengajuan (nama, nim, judul, deskripsi, bidang, pembimbing, nidn, komentar, file)
+          VALUES ('$nama', '$nim', '$judul', '$deskripsi', '$bidang', '$pembimbing', '$nidn', '$komentar', '$newname')";
 
 if (mysqli_query($conn, $query)) {
     echo "<script>alert('Pengajuan berhasil dikirim.'); window.location.href='../dashboard.php';</script>";

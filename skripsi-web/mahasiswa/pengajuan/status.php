@@ -14,7 +14,7 @@ $data_mhs = mysqli_fetch_assoc($mhs);
 
 // Ambil data pengajuan berdasarkan NIM
 $nim = $data_mhs['nim'];
-$pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
+$pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim' ORDER BY tanggal DESC");
 ?>
 <!DOCTYPE html>
 <html>
@@ -29,7 +29,7 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
       font-family: 'Segoe UI', sans-serif;
     }
 
-    h2, h5, th, td {
+    h2, th, td {
       color: #f1f1f1 !important;
     }
 
@@ -45,13 +45,13 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
 
     .sidebar h5 {
       text-align: center;
-      color: #ccc;
+      color: #ccc !important;
       margin-bottom: 15px;
     }
 
     .sidebar a {
       display: block;
-      color: #ccc;
+      color: #ccc !important;
       padding: 12px 20px;
       text-decoration: none;
       transition: background 0.2s ease;
@@ -60,15 +60,42 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
     .sidebar a:hover,
     .sidebar .active {
       background-color: #343a40;
-      color: #fff;
+      color: #fff !important;
     }
 
-    .collapse a {
-      padding-left: 35px;
+    .dropdown-sub {
+      background-color: #1c1d26;
     }
 
-    .sidebar a.dropdown-toggle::after {
-      content: '';
+    .dropdown-sub a {
+      padding-left: 40px;
+      font-size: 0.95rem;
+    }
+
+    .slide-menu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s ease;
+    }
+
+    .slide-menu.open {
+      max-height: 200px;
+    }
+
+    #dropdownToggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #arrowIcon {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+      margin-left: 10px;
+    }
+
+    .arrow.rotate {
+      transform: rotate(180deg);
     }
 
     .main {
@@ -82,12 +109,6 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
       border-radius: 12px;
       padding: 30px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-      animation: fadeIn 0.8s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
     }
 
     .table {
@@ -105,7 +126,7 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
     }
 
     .table th, .table td {
-      border-color: #d2eaffff;
+      border-color: #444;
       background-color: #2a2b3d;
       padding: 12px;
       vertical-align: middle;
@@ -114,7 +135,6 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
 
     .table-hover tbody tr:hover td {
       background-color: #383850;
-      transition: background 0.3s ease;
     }
 
     .badge-status {
@@ -128,19 +148,22 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
     .status-menunggu {
       background-color: #5c5c3d;
       color: #ffeb3b;
-      border: none;
     }
 
     .status-diterima {
       background-color: #2e5732;
       color: #81f781;
-      border: none;
     }
 
     .status-ditolak {
       background-color: #5a2e2e;
       color: #f18b8b;
-      border: none;
+    }
+
+    .btn-view {
+      background-color: #6c757d;
+      color: #fff;
+      font-size: 0.85rem;
     }
 
     .no-data {
@@ -158,15 +181,17 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
 <div class="sidebar">
   <h5>Mahasiswa</h5>
   <hr class="bg-secondary mx-3">
-  <a href="../dashboard.php">Dashboard</a>
-  <a class="dropdown-toggle" data-bs-toggle="collapse" href="#menuPengajuan" role="button" aria-expanded="true" aria-controls="menuPengajuan">
+  <a href="../dashboard.php" >Dashboard</a>
+
+  <a href="javascript:void(0)" onclick="toggleDropdown()" id="dropdownToggle">
     Pengajuan
+    <span class="arrow" id="arrowIcon">▾</span>
   </a>
-  <div class="collapse show ms-1" id="menuPengajuan">
+  <div id="dropdownMenu" class="dropdown-sub slide-menu">
     <a href="ajukan.php">Ajukan</a>
     <a href="status.php" class="active">Status</a>
-  </div>
-  <a href="../../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
+</div>
+  <a href="../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
 </div>
 
 <!-- Main Content -->
@@ -185,7 +210,12 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
             <tr>
               <th>Judul</th>
               <th>Deskripsi</th>
+              <th>Bidang</th>
+              <th>Pembimbing</th>
+              <th>Tanggal</th>
+              <th>File</th>
               <th>Status</th>
+              <th>Komentar</th>
             </tr>
           </thead>
           <tbody>
@@ -193,6 +223,12 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
             <tr>
               <td><?= htmlspecialchars($row['judul']) ?></td>
               <td><?= $row['deskripsi'] ? htmlspecialchars($row['deskripsi']) : '<em style="color:#ccc;">Tidak ada deskripsi</em>' ?></td>
+              <td><?= htmlspecialchars($row['bidang']) ?></td>
+              <td><?= htmlspecialchars($row['pembimbing']) ?></td>
+              <td><?= date('d-m-Y', strtotime($row['tanggal'])) ?></td>
+              <td>
+                <a href="lihat_file.php?file=<?= htmlspecialchars($row['file']) ?>" target="_blank" class="btn btn-sm btn-secondary">Lihat</a>
+              </td>
               <td>
                 <?php
                   $status = strtolower($row['status']);
@@ -202,6 +238,7 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
                   else echo htmlspecialchars($status);
                 ?>
               </td>
+              <td><?= $row['komentar'] ? htmlspecialchars($row['komentar']) : '-' ?></td>
             </tr>
           <?php endwhile; ?>
           </tbody>
@@ -214,6 +251,21 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim'");
 <?php include '../../partials/footer.php'; ?>
 <script src="../../assets/JS/bootstrap.bundle.min.js"></script>
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>AOS.init();</script>
+<script>
+  AOS.init();
+
+  function toggleDropdown() {
+    const menu = document.getElementById("dropdownMenu");
+    const arrow = document.getElementById("arrowIcon");
+
+    if (menu.classList.contains("open")) {
+      menu.classList.remove("open");
+      arrow.classList.remove("rotate");
+    } else {
+      menu.classList.add("open");
+      arrow.classList.add("rotate");
+    }
+  }
+</script>
 </body>
 </html>
