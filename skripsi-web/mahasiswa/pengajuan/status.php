@@ -191,7 +191,7 @@ $pengajuan = mysqli_query($conn, "SELECT * FROM pengajuan WHERE nim = '$nim' ORD
     <a href="ajukan.php">Ajukan</a>
     <a href="status.php" class="active">Status</a>
 </div>
-  <a href="../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
+  <a href="../../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
 </div>
 
 <!-- Main Content -->

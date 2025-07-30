@@ -161,7 +161,7 @@ $dosen_query = mysqli_query($conn, "SELECT nama, nidn FROM dosen WHERE kaprodi =
     <a href="ajukan.php" class="active">Ajukan</a>
     <a href="status.php" >Status</a>
 </div>
-  <a href="../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
+  <a href="../../logout.php" onclick="return confirm('Yakin ingin logout?')">Logout</a>
 </div>
 
 <!-- Main Content -->
